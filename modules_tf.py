@@ -631,34 +631,42 @@ def GAN_generator(singer_label, phones, f0_notation, rand):
 
     inputs = tf.concat([phones, f0_notation, singer_label, rand], axis = -1)
 
-    # inputs = tf.layers.dense(inputs, config.wavenet_filters, name = "G_in", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
+    inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len, 1, -1])
 
-    # inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len, 1, -1])
+    conv1 =  tf.nn.relu(tf.layers.conv2d(inputs, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_1"))
 
-    prenet_out = tf.layers.dense(inputs, config.lstm_size, name = "Gen1")
+    conv5 =  tf.nn.relu(tf.layers.conv2d(conv1, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_5"))
+    # import pdb;pdb.set_trace()
 
-    receptive_field = 2**config.wavenet_filters
+    conv6 =  tf.nn.relu(tf.layers.conv2d(conv5, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_6"))
 
-    first_conv = tf.layers.conv1d(prenet_out, config.wavenet_filters, 1, name = "Phone2")
-    skips = []
-    skip, residual = nr_wavenet_block(first_conv, dilation_rate = 1, name = "Gen_block_0")
-    output = skip
-    for i in range(config.wavenet_layers):
-        skip, residual = nr_wavenet_block(residual, dilation_rate = 2**(i+1), name = "Gen_block_"+str(i+1))
-        skips.append(skip)
-    for skip in skips:
-        output+=skip
-    output = output+first_conv
+    conv7 = tf.nn.relu(tf.layers.conv2d(conv6, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_7"))
 
-    output = tf.nn.relu(output)
+    conv8 = tf.nn.relu(tf.layers.conv2d(conv7, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_8"))
 
-    output = tf.layers.conv1d(output,config.wavenet_filters,1, name = "Gen_F_0")
+    conv9 =  tf.nn.relu(tf.layers.conv2d(conv8, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_9") + conv8)
 
-    output = tf.nn.relu(output)
+    conv10 =  tf.nn.relu(tf.layers.conv2d(conv9, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_10") + conv9)
 
-    output = tf.layers.conv1d(output,config.wavenet_filters,1, name = "Gen_F_1")
+    conv11 =  tf.nn.relu(tf.layers.conv2d(conv10, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_11") + conv10)
 
-    output = tf.layers.conv1d(output,64,1, name = "Gen_F", activation = tf.nn.tanh)
+    conv12 =  tf.nn.relu(tf.layers.conv2d(conv11, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_12") + conv11)
+
+    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 8, 1, config.wavenet_filters], name = "P_dec1") +  conv7)
+
+    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 16, 1, config.wavenet_filters], name = "P_dec2") + conv6)
+
+    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 32, 1, config.wavenet_filters], name = "P_dec3") + conv5)
+
+    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 64, 1, config.wavenet_filters], name = "P_dec4") + conv1)
+
+    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 128, 1, config.wavenet_filters], name = "P_dec5") +  inputs)
+
+    output = tf.nn.relu(tf.layers.conv2d(deconv5 , config.wavenet_filters, 1, strides=1,  padding = 'same', name = "P_o"))
+
+    output = tf.layers.conv2d(output, 64, 1, strides=1,  padding = 'same', name = "P_o_2", activation = None)
+
+    output = tf.reshape(output, [config.batch_size, config.max_phr_len, -1])
 # tf.layers.conv2d(deconv6, 64, 1, strides=1,  padding = 'same', name = "G_o_2", activation = tf.nn.tanh)
 
     # output = tf.layers.conv2d(deconv5, 64*128, (128,1), strides=1,  padding = 'valid', name = "G_o_2", activation = tf.nn.tanh)
