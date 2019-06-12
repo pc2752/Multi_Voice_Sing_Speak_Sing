@@ -500,11 +500,11 @@ def GAN_discriminator(inputs, singer_label, phones, f0_notation):
 
     # inputs = tf.concat([phones, f0_notation, singer_label, inputs], axis = -1)
 
-    inputs = tf.reshape(inputs, [config.batch_size, -1, config.max_phr_len, 1])
+    inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len,-1, 1])
 
     # inputs = tf.nn.leaky_relu(tf.layers.dense(inputs, config.wavenet_filters, name = "P_in", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv1 =  tf.nn.leaky_relu(tf.layers.conv2d(inputs, 64, (5,5), strides=(1,2),  padding = 'same', name = "G_1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv1 =  tf.nn.leaky_relu(tf.layers.conv2d(inputs, 64, (5,5), strides=(2,1),  padding = 'same', name = "G_1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     conv2 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 64, (5,5), strides=(2,2),  padding = 'same', name = "G_2", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
