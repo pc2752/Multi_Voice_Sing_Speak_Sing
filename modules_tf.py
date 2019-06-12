@@ -628,54 +628,83 @@ def GAN_generator(singer_label, phones, f0_notation, rand):
     f0_notation = tf.layers.dense(f0_notation, config.wavenet_filters, name = "G_f0", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
     singer_label = tf.tile(tf.reshape(singer_label,[config.batch_size,1,-1]),[1,config.max_phr_len,1])
 
+    # # conds = tf.concat([phones, f0_notation], axis = -1)
+
+    # # conds = tf.layers.dense(conds, config.wavenet_filters, name = "G_conds")    
 
     inputs = tf.concat([phones, f0_notation, singer_label, rand], axis = -1)
 
+    # inputs = tf.layers.dense(inputs, config.wavenet_filters, name = "G_in", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
+
     inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len, 1, -1])
 
-    conv1 =  tf.nn.relu(tf.layers.conv2d(inputs, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_1"))
+    # rand = tf.layers.dense(rand, config.wavenet_filters, name = "G_rand", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
 
-    conv5 =  tf.nn.relu(tf.layers.conv2d(conv1, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_5"))
+    conv1 =  tf.nn.relu(tf.layers.conv2d(inputs, 32, (3,1), strides=(2,1),  padding = 'same', name = "G_1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+
+    conv5 =  tf.nn.relu(tf.layers.conv2d(conv1, 64, (3,1), strides=(2,1),  padding = 'same', name = "G_5", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
     # import pdb;pdb.set_trace()
 
-    conv6 =  tf.nn.relu(tf.layers.conv2d(conv5, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_6"))
+    conv6 =  tf.nn.relu(tf.layers.conv2d(conv5, 128, (3,1), strides=(2,1),  padding = 'same', name = "G_6", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv7 = tf.nn.relu(tf.layers.conv2d(conv6, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_7"))
+    conv7 = tf.nn.relu(tf.layers.conv2d(conv6, 256, (3,1), strides=(2,1),  padding = 'same', name = "G_7", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv8 = tf.nn.relu(tf.layers.conv2d(conv7, config.wavenet_filters, (4,1), strides=(2,1),  padding = 'same', name = "P_8"))
+    conv8 = tf.nn.relu(tf.layers.conv2d(conv7, 512, (3,1), strides=(2,1),  padding = 'same', name = "G_8", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv9 =  tf.nn.relu(tf.layers.conv2d(conv8, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_9") + conv8)
+    deconv1 = tf.image.resize_images(conv8, size=(8,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
-    conv10 =  tf.nn.relu(tf.layers.conv2d(conv9, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_10") + conv9)
+    deconv1 = tf.nn.relu(tf.layers.conv2d(deconv1, 512, (3,1), strides=(1,1),  padding = 'same', name = "G_dec1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv11 =  tf.nn.relu(tf.layers.conv2d(conv10, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_11") + conv10)
+    deconv1 = tf.concat([deconv1, conv7], axis = -1)
 
-    conv12 =  tf.nn.relu(tf.layers.conv2d(conv11, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_12") + conv11)
+    deconv2 = tf.image.resize_images(deconv1, size=(16,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
-    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 8, 1, config.wavenet_filters], name = "P_dec1") +  conv7)
+    deconv2 = tf.nn.relu(tf.layers.conv2d(deconv2, 256, (3,1), strides=(1,1),  padding = 'same', name = "G_dec2", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 16, 1, config.wavenet_filters], name = "P_dec2") + conv6)
+    deconv2 = tf.concat([deconv2, conv6], axis = -1)
 
-    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 32, 1, config.wavenet_filters], name = "P_dec3") + conv5)
 
-    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 64, 1, config.wavenet_filters], name = "P_dec4") + conv1)
+    deconv3 = tf.image.resize_images(deconv2, size=(32,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
-    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 128, 1, config.wavenet_filters], name = "P_dec5") +  inputs)
+    deconv3 = tf.nn.relu(tf.layers.conv2d(deconv3, 128, (3,1), strides=(1,1),  padding = 'same', name = "G_dec3", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    output = tf.nn.relu(tf.layers.conv2d(deconv5 , config.wavenet_filters, 1, strides=1,  padding = 'same', name = "P_o"))
+    deconv3 = tf.concat([deconv3, conv5], axis = -1)
 
-    output = tf.layers.conv2d(output, 64, 1, strides=1,  padding = 'same', name = "P_o_2", activation = None)
 
-    output = tf.reshape(output, [config.batch_size, config.max_phr_len, -1])
-# tf.layers.conv2d(deconv6, 64, 1, strides=1,  padding = 'same', name = "G_o_2", activation = tf.nn.tanh)
+    deconv4 = tf.image.resize_images(deconv3, size=(64,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+
+    deconv4 = tf.nn.relu(tf.layers.conv2d(deconv4, 64, (3,1), strides=(1,1),  padding = 'same', name = "G_dec4", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+
+    deconv4 = tf.concat([deconv4, conv1], axis = -1)
+
+
+    deconv5 = tf.image.resize_images(deconv4, size=(128,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+
+    deconv5 = tf.nn.relu(tf.layers.conv2d(deconv5, 64, (3,1), strides=(1,1),  padding = 'same', name = "G_dec5", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+
+    deconv5 = tf.concat([deconv5, inputs], axis = -1)
+
+
+    # deconv1 = tf.concat([deconv2d(conv8, [config.batch_size, 8, 1, 512], name = "G_dec1"),  conv7], axis = -1)
+
+    # deconv2 = tf.concat([deconv2d(deconv1, [config.batch_size, 16, 1, 256], name = "g_dec2") , conv6] , axis = -1)
+
+    # deconv3 = tf.concat([deconv2d(deconv2, [config.batch_size, 32, 1, 128], name = "G_dec3"),  conv5] , axis = -1)
+
+    # deconv4 = tf.concat([deconv2d(deconv3, [config.batch_size, 64, 1, 64], name = "G_dec4"),  conv1], axis  = -1)
+
+    # deconv5 = tf.concat([deconv2d(deconv4, [config.batch_size, 128, 1, config.wavenet_filters], name = "G_dec5"), inputs] , axis = -1)
+
+    # output = tf.nn.relu(tf.layers.conv2d(deconv5 , config.wavenet_filters, 1, strides=1,  padding = 'same', name = "G_o", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+
+    output = tf.layers.conv2d(deconv5, 64, 1, strides=1,  padding = 'same', name = "G_o_2", activation = tf.nn.tanh)
 
     # output = tf.layers.conv2d(deconv5, 64*128, (128,1), strides=1,  padding = 'valid', name = "G_o_2", activation = tf.nn.tanh)
 
 
-    # output = tf.reshape(output, [config.batch_size, config.max_phr_len, -1])
+    output = tf.reshape(output, [config.batch_size, config.max_phr_len, -1])
 
     return output
-
 
 def singer_network(inputs, prob):
 
