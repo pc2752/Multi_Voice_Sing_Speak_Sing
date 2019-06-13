@@ -14,7 +14,7 @@ wav_dir_vctk_lab = '../datasets/VCTK/VCTK_files/VCTK-Corpus/forPritish/'
 voice_dir = '../ss_synthesis/voice/'
 backing_dir = '../ss_synthesis/backing/'
 
-log_dir = './loga/'
+log_dir = './loga_256/'
 
 # log_dir = '../ss_synthesis/log_cross_GANandL1/'
 
@@ -119,7 +119,7 @@ batches_per_epoch_val = 10
 batches_per_epoch_val_m1 = 300
 batch_size = 30
 samples_per_file = 5
-max_phr_len = 32
+max_phr_len = 256
 input_features = 513
 
 first_embed = 256
