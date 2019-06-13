@@ -386,15 +386,15 @@ def final_net(singer_label, f0_notation, phones):
 
     conv12 =  tf.nn.relu(tf.layers.conv2d(conv11, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "F_12") + conv11)
 
-    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 8, 1, config.wavenet_filters], name = "F_dec1") +  conv7)
+    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 4, 1, config.wavenet_filters], name = "F_dec1") +  conv7)
 
-    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 16, 1, config.wavenet_filters], name = "F_dec2") + conv6)
+    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 8, 1, config.wavenet_filters], name = "F_dec2") + conv6)
 
-    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 32, 1, config.wavenet_filters], name = "F_dec3") + conv5)
+    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 16, 1, config.wavenet_filters], name = "F_dec3") + conv5)
 
-    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 64, 1, config.wavenet_filters], name = "F_dec4") + conv1)
+    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 32, 1, config.wavenet_filters], name = "F_dec4") + conv1)
 
-    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 128, 1, config.wavenet_filters], name = "F_dec5") +  inputs)
+    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 64, 1, config.wavenet_filters], name = "F_dec5") +  inputs)
 
     # deconv6 = deconv2d(deconv5, [config.batch_size, 256, 1, config.wavenet_filters], name = "G_dec6") + conv2
 
