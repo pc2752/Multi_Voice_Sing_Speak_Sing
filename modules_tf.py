@@ -493,36 +493,36 @@ def phone_network(inputs):
 def GAN_discriminator(inputs, singer_label, phones, f0_notation):
 
 
-    # phones = tf.layers.dense(phones, config.wavenet_filters, name = "D_phone", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
+    phones = tf.layers.dense(phones, config.wavenet_filters, name = "D_phone", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
 
-    # f0_notation = tf.layers.dense(f0_notation, config.wavenet_filters, name = "D_f0", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
-    # singer_label = tf.tile(tf.reshape(singer_label,[config.batch_size,1,-1]),[1,config.max_phr_len,1])
+    f0_notation = tf.layers.dense(f0_notation, config.wavenet_filters, name = "D_f0", kernel_initializer=tf.random_normal_initializer(stddev=0.02))
+    singer_label = tf.tile(tf.reshape(singer_label,[config.batch_size,1,-1]),[1,config.max_phr_len,1])
 
-    # inputs = tf.concat([phones, f0_notation, singer_label, inputs], axis = -1)
+    inputs = tf.concat([phones, f0_notation, singer_label, inputs], axis = -1)
 
-    inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len,-1, 1])
+    inputs = tf.reshape(inputs, [config.batch_size, config.max_phr_len,1, -1])
 
-    # inputs = tf.nn.leaky_relu(tf.layers.dense(inputs, config.wavenet_filters, name = "P_in", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    inputs = tf.nn.leaky_relu(tf.layers.dense(inputs, 128, name = "P_in", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv1 =  tf.nn.leaky_relu(tf.layers.conv2d(inputs, 64, (5,5), strides=(2,1),  padding = 'same', name = "G_1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv1 =  tf.nn.leaky_relu(tf.layers.conv2d(inputs, 128, (5,1), strides=(2,1),  padding = 'same', name = "G_1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv2 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 64, (5,5), strides=(2,2),  padding = 'same', name = "G_2", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv2 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_2", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv3 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 128, (5,5), strides=(2,2),  padding = 'same', name = "G_3", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv3 =  tf.nn.leaky_relu(tf.layers.conv2d(conv2, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_3", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv4 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 128, (5,5), strides=(2,2),  padding = 'same', name = "G_4", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv4 =  tf.nn.leaky_relu(tf.layers.conv2d(conv3, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_4", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv5 =  tf.nn.leaky_relu(tf.layers.conv2d(conv1, 256, (5,5), strides=(2,2),  padding = 'same', name = "G_5", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv5 =  tf.nn.leaky_relu(tf.layers.conv2d(conv4, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_5", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv6 =  tf.nn.leaky_relu(tf.layers.conv2d(conv5, 256, (5,5), strides=(2,2),  padding = 'same', name = "G_6", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv6 =  tf.nn.leaky_relu(tf.layers.conv2d(conv5, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_6", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv7 = tf.nn.leaky_relu(tf.layers.conv2d(conv6, 256, (5,5), strides=(2,2),  padding = 'same', name = "G_7", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv7 = tf.nn.leaky_relu(tf.layers.conv2d(conv6, 256, (5,1), strides=(2,1),  padding = 'same', name = "G_7", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
     
-    conv8 = tf.nn.leaky_relu(tf.layers.conv2d(conv7, 512, (5,5), strides=(2,2),  padding = 'same', name = "G_8", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    # conv8 = tf.nn.leaky_relu(tf.layers.conv2d(conv7, 512, (5,5), strides=(2,2),  padding = 'same', name = "G_8", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv9 = tf.nn.leaky_relu(tf.layers.conv2d(conv8, 512, (5,5), strides=(2,2),  padding = 'same', name = "G_9", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    # conv9 = tf.nn.leaky_relu(tf.layers.conv2d(conv8, 512, (5,5), strides=(2,2),  padding = 'same', name = "G_9", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    conv10 = tf.nn.leaky_relu(tf.layers.conv2d(conv9, 1, (1,1), strides=(1,1),  padding = 'same', name = "G_10", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
+    conv10 = tf.nn.leaky_relu(tf.layers.conv2d(conv7, 1, (1,1), strides=(1,1),  padding = 'same', name = "G_10", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     # import pdb;pdb.set_trace()
 

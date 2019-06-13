@@ -562,9 +562,9 @@ def synth_file(file_name = "nus_MCUR_sing_10.hdf5", singer_index = 0, file_path=
 
         f0[f0==0] = med
 
-        f0 = f0-12
+        f0 = f0
 
-        feats[:,-2] = feats[:,-2] -12
+        feats[:,-2] = feats[:,-2] 
 
 
         f0_nor = (f0 - min_feat[-2])/(max_feat[-2]-min_feat[-2])
