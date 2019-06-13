@@ -438,15 +438,15 @@ def phone_network(inputs):
 
     conv12 =  tf.nn.relu(tf.layers.conv2d(conv11, config.wavenet_filters, (4,1), strides=1,  padding = 'same', name = "P_12") + conv11)
 
-    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 4, 1, config.wavenet_filters], name = "P_dec1") +  conv7)
+    deconv1 = tf.nn.relu(deconv2d(conv12, [config.batch_size, 8, 1, config.wavenet_filters], name = "P_dec1") +  conv7)
 
-    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 8, 1, config.wavenet_filters], name = "P_dec2") + conv6)
+    deconv2 = tf.nn.relu(deconv2d(deconv1, [config.batch_size, 16, 1, config.wavenet_filters], name = "P_dec2") + conv6)
 
-    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 16, 1, config.wavenet_filters], name = "P_dec3") + conv5)
+    deconv3 = tf.nn.relu(deconv2d(deconv2, [config.batch_size, 32, 1, config.wavenet_filters], name = "P_dec3") + conv5)
 
-    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 32, 1, config.wavenet_filters], name = "P_dec4") + conv1)
+    deconv4 = tf.nn.relu(deconv2d(deconv3, [config.batch_size, 64, 1, config.wavenet_filters], name = "P_dec4") + conv1)
 
-    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 64, 1, config.wavenet_filters], name = "P_dec5") +  inputs)
+    deconv5 = tf.nn.relu(deconv2d(deconv4, [config.batch_size, 128, 1, config.wavenet_filters], name = "P_dec5") +  inputs)
 
     output = tf.nn.relu(tf.layers.conv2d(deconv5 , config.wavenet_filters, 1, strides=1,  padding = 'same', name = "P_o"))
 
@@ -651,34 +651,34 @@ def GAN_generator(singer_label, phones, f0_notation, rand):
 
     conv8 = tf.nn.relu(tf.layers.conv2d(conv7, 512, (3,1), strides=(2,1),  padding = 'same', name = "G_8", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
-    deconv1 = tf.image.resize_images(conv8, size=(4,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    deconv1 = tf.image.resize_images(conv8, size=(8,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     deconv1 = tf.nn.relu(tf.layers.conv2d(deconv1, 512, (3,1), strides=(1,1),  padding = 'same', name = "G_dec1", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     deconv1 = tf.concat([deconv1, conv7], axis = -1)
 
-    deconv2 = tf.image.resize_images(deconv1, size=(8,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    deconv2 = tf.image.resize_images(deconv1, size=(16,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     deconv2 = tf.nn.relu(tf.layers.conv2d(deconv2, 256, (3,1), strides=(1,1),  padding = 'same', name = "G_dec2", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     deconv2 = tf.concat([deconv2, conv6], axis = -1)
 
 
-    deconv3 = tf.image.resize_images(deconv2, size=(16,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    deconv3 = tf.image.resize_images(deconv2, size=(32,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     deconv3 = tf.nn.relu(tf.layers.conv2d(deconv3, 128, (3,1), strides=(1,1),  padding = 'same', name = "G_dec3", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     deconv3 = tf.concat([deconv3, conv5], axis = -1)
 
 
-    deconv4 = tf.image.resize_images(deconv3, size=(32,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    deconv4 = tf.image.resize_images(deconv3, size=(64,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     deconv4 = tf.nn.relu(tf.layers.conv2d(deconv4, 64, (3,1), strides=(1,1),  padding = 'same', name = "G_dec4", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
     deconv4 = tf.concat([deconv4, conv1], axis = -1)
 
 
-    deconv5 = tf.image.resize_images(deconv4, size=(64,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    deconv5 = tf.image.resize_images(deconv4, size=(128,1), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
 
     deconv5 = tf.nn.relu(tf.layers.conv2d(deconv5, 64, (3,1), strides=(1,1),  padding = 'same', name = "G_dec5", kernel_initializer=tf.random_normal_initializer(stddev=0.02)))
 
