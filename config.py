@@ -119,7 +119,7 @@ batches_per_epoch_val = 10
 batches_per_epoch_val_m1 = 300
 batch_size = 30
 samples_per_file = 5
-max_phr_len = 64
+max_phr_len = 32
 input_features = 513
 
 first_embed = 256
