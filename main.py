@@ -669,37 +669,38 @@ def synth_file(file_name = "nus_MCUR_sing_10.hdf5", singer_index = 0, file_path=
 
             plt.figure(1)
 
-            ax1 = plt.subplot(311)
+            # ax1 = plt.subplot(311)
 
-            plt.imshow(feats[:,:60].T,aspect='auto',origin='lower')
+            
 
-            ax1.set_title("Ground Truth Vocoder Features", fontsize=10)
+            # ax1.set_title("Ground Truth Vocoder Features", fontsize=10)
 
-            ax2 = plt.subplot(312, sharex = ax1, sharey = ax1)
+            # ax2 = plt.subplot(312, sharex = ax1, sharey = ax1)
 
-            plt.imshow(out_batches_feats[:,:60].T,aspect='auto',origin='lower')
+            # plt.imshow(out_batches_feats[:,:60].T,aspect='auto',origin='lower')
 
-            ax2.set_title("Cross Entropy Output Vocoder Features", fontsize=10)
+            # ax2.set_title("Cross Entropy Output Vocoder Features", fontsize=10)
 
-            ax3 =plt.subplot(313, sharex = ax1, sharey = ax1)
+            # ax3 =plt.subplot(313, sharex = ax1, sharey = ax1)
 
-            ax3.set_title("GAN Vocoder Output Features", fontsize=10)
+            # ax3.set_title("GAN Vocoder Output Features", fontsize=10)
 
-            # plt.imshow(out_batches_feats_1[:,:60].T,aspect='auto',origin='lower')
-            #
-            # plt.subplot(414, sharex = ax1, sharey = ax1)
+            # # plt.imshow(out_batches_feats_1[:,:60].T,aspect='auto',origin='lower')
+            # #
+            # # plt.subplot(414, sharex = ax1, sharey = ax1)
 
             plt.imshow(out_batches_feats_gan[:,:60].T,aspect='auto',origin='lower')
 
             plt.figure(2)
+            plt.imshow(feats[:,:60].T,aspect='auto',origin='lower')
 
-            plt.subplot(211)
+            # plt.subplot(211)
 
-            plt.imshow(feats[:,60:-2].T,aspect='auto',origin='lower')
+            # plt.imshow(feats[:,60:-2].T,aspect='auto',origin='lower')
 
-            plt.subplot(212)
+            # plt.subplot(212)
 
-            plt.imshow(out_batches_feats[:,-4:].T,aspect='auto',origin='lower')
+            # plt.imshow(out_batches_feats[:,-4:].T,aspect='auto',origin='lower')
 
             plt.show()
 
