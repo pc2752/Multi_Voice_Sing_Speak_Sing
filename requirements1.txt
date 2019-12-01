@@ -2,3 +2,7 @@
 #so have to install it first
 
 numpy==1.17.4
+
+#also this guy
+Cython==0.29.14
+
