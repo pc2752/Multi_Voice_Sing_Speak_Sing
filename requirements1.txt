@@ -1,0 +1,4 @@
+#numpy seems to be required by some build scripts in requirements2.txt
+#so have to install it first
+
+numpy==1.17.4
